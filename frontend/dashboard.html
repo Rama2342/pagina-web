@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TechApp</title>
+    <link rel="stylesheet" href="css/futuristic.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="glass-nav">
+            <div class="nav-brand">
+                <h1 data-text="TechApp">TechApp</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Perfil</a>
+                <a href="#" class="nav-link">Configuración</a>
+                <a href="#" id="logoutButton" class="nav-link">Cerrar Sesión</a>
+            </div>
+        </nav>
+        <main class="dashboard-container">
+            <div class="dashboard-header">
+                <h2>Panel de Control</h2>
+                <p id="welcomeMessage">Bienvenido de vuelta</p>
+            </div>
+            <div class="dashboard-cards">
+                <div class="glass-card">
+                    <h3>Información del Usuario</h3>
+                    <p><strong>Usuario:</strong> <span id="userName">-</span></p>
+                    <p><strong>Email:</strong> <span id="userEmail">-</span></p>
+                    <p><strong>Miembro desde:</strong> <span id="userSince">-</span></p>
+                </div>
+                <div class="glass-card">
+                    <h3>Estadísticas</h3>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statSessions">0</div>
+                            <div class="stat-label">Sesiones</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statTasks">0</div>
+                            <div class="stat-label">Tareas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statMessages">0</div>
+                            <div class="stat-label">Mensajes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Actividad Reciente</h3>
+                    <ul class="activity-list" id="activityList">
+                        <li>Iniciando sesión...</li>
+                    </ul>
+                </div>
+                <div class="glass-card">
+                    <h3>Acciones Rápidas</h3>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="showNotification('Función en desarrollo')">
+                            <span class="action-icon">➕</span>
+                            <span>Nuevo Proyecto</span>
+                        </button>
+                        <button class="action-btn" onclick="showNotification('Función en desarrollo')">
+                            <span class="action-icon">📊</span>
+                            <span>Ver Reportes</span>
+                        </button>
+                        <button class="action-btn" onclick="showNotification('Función en desarrollo')">
+                            <span class="action-icon">⚙️</span>
+                            <span>Configuración</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="glass-footer">
+            <p>&copy; 2023 TechApp - Todos los derechos reservados</p>
+        </footer>
+    </div>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

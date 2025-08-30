@@ -1,0 +1,521 @@
+:root {
+    --primary: #00d9ff;
+    --secondary: #ff00e6;
+    --dark: #0a0a1a;
+    --darker: #050510;
+    --light: #ffffff;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos específicos para el sistema escolar San Isidro */
+
+/* Navbar mejorada */
+.nav-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.nav-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-top: -5px;
+    font-weight: 300;
+}
+
+/* Hero Section mejorada */
+.hero-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* School icon */
+.school-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+/* Mejoras para las secciones de características */
+.features-section {
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, var(--darker), var(--dark));
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.feature-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 250px;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary);
+}
+
+.feature-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding: 1rem;
+}
+
+.feature-card h4 {
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    color: var(--light);
+    font-weight: 600;
+}
+
+.feature-card p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Courses Section mejorada */
+.courses-section {
+    padding: 5rem 2rem;
+    background: var(--darker);
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.course-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 220px;
+}
+
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.course-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.course-card h4 {
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.course-description {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1.2rem;
+    font-size: 1rem;
+}
+
+.course-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--dark);
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: auto;
+}
+
+/* Nueva sección de información */
+.info-section {
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, var(--dark), var(--darker));
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.info-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--secondary);
+}
+
+.info-card h4 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: var(--light);
+    font-weight: 600;
+}
+
+.info-card p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Mejoras para el header de secciones */
+.section-header {
+    text-align: center;
+    margin: 4rem 0;
+    padding: 0 1rem;
+}
+
+.section-header h3 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+}
+
+.section-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Form improvements */
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.school-logo {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.form-subtitle {
+    opacity: 0.8;
+    margin-top: -0.5rem;
+}
+
+.user-type-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.user-type-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    color: var(--light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-type-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.user-type-btn.active {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: var(--dark);
+    border-color: var(--primary);
+}
+
+.user-type-btn i {
+    font-size: 1.2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.checkbox-container input {
+    margin-right: 0.5rem;
+}
+
+.forgot-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.password-strength {
+    margin: 1rem 0;
+}
+
+.strength-meter {
+    height: 4px;
+    background: var(--glass-border);
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.strength-weak {
+    background: #ff4757;
+    width: 33%;
+}
+
+.strength-medium {
+    background: #ffa502;
+    width: 66%;
+}
+
+.strength-strong {
+    background: #2ed573;
+    width: 100%;
+}
+
+.form-terms {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+/* Footer improvements */
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.footer-section p {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--glass-border);
+    padding-top: 1rem;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-type-selector {
+        flex-direction: column;
+    }
+    
+    .features-grid,
+    .courses-grid,
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .feature-card,
+    .course-card,
+    .info-card {
+        min-height: auto;
+        padding: 2rem 1.5rem;
+    }
+    
+    .section-header h3 {
+        font-size: 2.2rem;
+    }
+    
+    .section-header p {
+        font-size: 1.1rem;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .features-section,
+    .courses-section,
+    .info-section {
+        padding: 3rem 1rem;
+    }
+    
+    .feature-card,
+    .course-card,
+    .info-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .section-header {
+        margin: 3rem 0;
+    }
+    
+    .section-header h3 {
+        font-size: 2rem;
+    }
+}
+
+/* Animaciones suaves */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feature-card,
+.course-card,
+.info-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+.course-card:nth-child(1) { animation-delay: 0.2s; }
+.course-card:nth-child(2) { animation-delay: 0.3s; }
+.course-card:nth-child(3) { animation-delay: 0.4s; }
+
+.info-card:nth-child(1) { animation-delay: 0.3s; }
+.info-card:nth-child(2) { animation-delay: 0.4s; }
+.info-card:nth-child(3) { animation-delay: 0.5s; }
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .feature-card,
+    .course-card,
+    .info-card {
+        animation: none;
+    }
+}
