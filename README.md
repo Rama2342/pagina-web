@@ -1,2 +1,6 @@
-# Pagina-web
-Esta Pagina web es un backup de una pagina web para ejecutar en un servidor (localhost) en el Secundario San Isidroo
+Integrantes: Front-end: Martina Sanches
+            Back-end:Ramiro Bazan
+            Tester: Sol Acunzos
+            Documentacion: Naomi Heredia
+
+Proyecto de final de año de 6 año
