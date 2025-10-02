@@ -1,71 +1,91 @@
+#!/usr/bin/env python3
+"""
+Servidor HTTP simple para servir archivos estáticos del frontend.
+Maneja errores de conexión abortada por el cliente.
+"""
+
 import http.server
 import socketserver
+import logging
 import os
-import sys
-from urllib.parse import urlparse
+from pathlib import Path
 
-class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+# Configurar logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('frontend_server.log'),  # Log en archivo
+        logging.StreamHandler()  # También en consola
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Directorio base para servir archivos (ajusta según tu estructura)
+BASE_DIR = Path(__file__).parent
+PORT = 8000  # Puerto para el frontend (diferente al backend en 5000)
+
+class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """
+    Handler personalizado que maneja errores de conexión abortada.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=str(BASE_DIR), **kwargs)
+
+    def log_message(self, format_str, *args):
+        """Redirige los logs del servidor a nuestro logger."""
+        logger.info(f"{self.address_string()} - - [{self.log_date_time_string()}] {format_str % args}")
+
     def do_GET(self):
-        # Parsear la URL
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
-        
-        # Manejar rutas de la API - redirigir al backend
-        if path.startswith('/api/'):
-            self.send_response(302)
-            self.send_header('Location', f'http://localhost:5000{path}')
-            self.end_headers()
-            return
-        
-        # Servir archivos específicos para cada ruta
-        if path == '/':
-            self.path = '/index.html'
-        elif path == '/login':
-            self.path = '/login.html'
-        elif path == '/register':
-            self.path = '/register.html'
-        elif path == '/dashboard':
-            self.path = '/dashboard.html'
-        elif not '.' in path.split('/')[-1]:
-            # Si es una ruta sin extensión, servir index.html
-            self.path = '/index.html'
-        
-        # Servir el archivo estático
-        return super().do_GET()
-    
-    def end_headers(self):
-        # Agregar headers CORS para desarrollo
-        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5000')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
-        super().end_headers()
-    
-    def do_OPTIONS(self):
-        # Manejar preflight requests para CORS
-        self.send_response(200)
-        self.end_headers()
+        """
+        Maneja solicitudes GET con try-except para capturar ConnectionAbortedError.
+        """
+        try:
+            # Llama al método padre (servir archivo estático)
+            return super().do_GET()
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError) as e:
+            # Cliente cerró la conexión prematuramente (normal en web)
+            logger.warning(f"Conexión abortada por el cliente: {e} (IP: {self.client_address[0]})")
+        except Exception as e:
+            # Otros errores inesperados
+            logger.error(f"Error inesperado en do_GET: {e}", exc_info=True)
+            # Envía una respuesta de error 500 si es posible
+            try:
+                self.send_error(500, f"Error interno del servidor: {str(e)}")
+            except:
+                pass  # Si la conexión ya está rota, ignora
 
-def run_server():
-    # Cambiar al directorio frontend
-    frontend_dir = os.path.join(os.path.dirname(__file__))
-    os.chdir(frontend_dir)
-    
-    PORT = 3000
-    Handler = MyHTTPRequestHandler
-    
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print("=" * 50)
-        print("Frontend iniciado correctamente!")
-        print("Frontend disponible en: http://localhost:3000")
-        print("Páginas:")
-        print("  - http://localhost:3000/ (Inicio)")
-        print("  - http://localhost:3000/login (Iniciar sesión)")
-        print("  - http://localhost:3000/register (Registrarse)")
-        print("  - http://localhost:3000/dashboard (Panel de control)")
-        print("=" * 50)
-        print("Presiona Ctrl+C para detener el servidor")
-        httpd.serve_forever()
+    def do_POST(self):
+        """
+        Si necesitas manejar POST (por ejemplo, para uploads), agrega aquí.
+        Por ahora, redirige a 405 (Method Not Allowed) para simplicidad.
+        """
+        try:
+            self.send_error(405, "Method Not Allowed")
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            logger.warning(f"Conexión abortada en do_POST: {self.client_address[0]}")
 
-if __name__ == '__main__':
-    run_server()
+class CustomTCPServer(socketserver.TCPServer):
+    """
+    Servidor TCP personalizado que permite reutilizar el puerto.
+    """
+    allow_reuse_address = True
+
+def run_frontend_server():
+    """
+    Inicia el servidor del frontend.
+    """
+    try:
+        # Crea el servidor con el handler personalizado
+        with CustomTCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
+            logger.info(f"Servidor del frontend iniciado en http://localhost:{PORT}")
+            logger.info(f"Sirviendo archivos desde: {BASE_DIR}")
+            logger.info("Presiona Ctrl+C para detener.")
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        logger.info("Servidor del frontend detenido por el usuario.")
+    except Exception as e:
+        logger.error(f"Error al iniciar el servidor del frontend: {e}", exc_info=True)
+
+if __name__ == "__main__":
+    run_frontend_server()

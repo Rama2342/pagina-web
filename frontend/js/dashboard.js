@@ -6,70 +6,157 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
+    // Mostrar indicador de carga
+    showNotification('Cargando información del usuario...', 'info');
+    
     // Cargar datos del usuario
-    loadUserData();
+    loadUserProfile();
     
-    // Cargar estadísticas
-    loadStatistics();
+    // Cargar información académica
+    loadAcademicInfo();
     
-    // Cargar actividad reciente
-    loadRecentActivity();
+    // Cargar actividades y noticias
+    loadActivities();
+    loadNews();
+    
+    // Iniciar reloj y actualizaciones
+    startRealTimeClock();
+    startAutoUpdates();
     
     // Configurar event listeners
     setupDashboardEvents();
     
-    // Iniciar actualizaciones automáticas
-    startAutoUpdates();
+    // Monitorear conexión
+    setupConnectionMonitoring();
+    
+    // Ocultar indicador de carga después de 2 segundos
+    setTimeout(() => {
+        const notifications = document.querySelectorAll('.notification');
+        notifications.forEach(notification => {
+            if (notification.textContent.includes('Cargando información')) {
+                notification.remove();
+            }
+        });
+    }, 2000);
 });
 
-async function loadUserData() {
+async function loadUserProfile() {
     try {
-        const data = await auth.fetchProtectedData();
+        const response = await fetch(`${auth.apiBase}/user/full-profile`, {
+            headers: auth.getAuthHeaders()
+        });
         
-        if (data) {
-            // Actualizar UI con datos del usuario
-            if (document.getElementById('welcomeMessage')) {
-                document.getElementById('welcomeMessage').textContent = data.message;
-            }
-            if (document.getElementById('userName')) {
-                document.getElementById('userName').textContent = data.user;
-            }
-            if (document.getElementById('userEmail')) {
-                document.getElementById('userEmail').textContent = data.email;
-            }
+        if (response.ok) {
+            const data = await response.json();
             
-            // Simular fecha de registro
-            const joinDate = new Date();
-            joinDate.setMonth(joinDate.getMonth() - 2);
-            if (document.getElementById('userSince')) {
-                document.getElementById('userSince').textContent = joinDate.toLocaleDateString();
+            if (data.success) {
+                // Actualizar UI con datos reales del usuario
+                updateUserInterface(data.user);
+                
+                // Guardar datos en localStorage para uso posterior
+                localStorage.setItem('userData', JSON.stringify(data.user));
             }
+        } else if (response.status === 401) {
+            // Token inválido o expirado
+            auth.logout();
         }
     } catch (error) {
-        console.error('Error loading user data:', error);
-        showNotification('Error al cargar datos del usuario', 'error');
+        console.error('Error loading user profile:', error);
+        showNotification('Error al cargar perfil del usuario', 'error');
+        
+        // Intentar cargar datos desde localStorage como fallback
+        const savedData = localStorage.getItem('userData');
+        if (savedData) {
+            updateUserInterface(JSON.parse(savedData));
+        }
     }
 }
 
-function loadStatistics() {
-    // Simular datos de estadísticas (en una app real esto vendría del backend)
-    const stats = {
-        sessions: Math.floor(Math.random() * 100) + 50,
-        tasks: Math.floor(Math.random() * 50) + 20,
-        messages: Math.floor(Math.random() * 200) + 100
-    };
+async function loadAcademicInfo() {
+    try {
+        const response = await fetch(`${auth.apiBase}/user/academic-info`, {
+            headers: auth.getAuthHeaders()
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success) {
+                // Actualizar información académica
+                updateAcademicInfo(data.academic_info);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading academic info:', error);
+        showNotification('Error al cargar información académica', 'error');
+    }
+}
+
+function updateUserInterface(userData) {
+    // Información principal
+    if (document.getElementById('userName')) {
+        document.getElementById('userName').textContent = userData.username;
+    }
+    if (document.getElementById('userEmail')) {
+        document.getElementById('userEmail').textContent = userData.email;
+    }
+    if (document.getElementById('userCode')) {
+        document.getElementById('userCode').textContent = userData.matricula;
+    }
+    if (document.getElementById('userCourse')) {
+        document.getElementById('userCourse').textContent = userData.curso;
+    }
+    if (document.getElementById('userRole')) {
+        document.getElementById('userRole').textContent = userData.role;
+    }
+    if (document.getElementById('userGrade')) {
+        document.getElementById('userGrade').textContent = userData.curso;
+    }
+    if (document.getElementById('footerUser')) {
+        document.getElementById('footerUser').textContent = userData.username;
+    }
+    if (document.getElementById('welcomeMessage')) {
+        document.getElementById('welcomeMessage').textContent = `Bienvenido, ${userData.username}`;
+    }
+    
+    // Información adicional si existe en los elementos
+    if (document.getElementById('userTurn')) {
+        document.getElementById('userTurn').textContent = userData.turno || 'Mañana';
+    }
+    if (document.getElementById('userStatus')) {
+        document.getElementById('userStatus').textContent = userData.estado || 'Regular';
+    }
+}
+
+function updateAcademicInfo(academicData) {
+    // Actualizar estadísticas académicas
+    if (document.getElementById('statAverage')) {
+        document.getElementById('statAverage').textContent = academicData.promedio_general;
+        document.getElementById('statAverage').setAttribute('data-target', academicData.promedio_general);
+    }
+    if (document.getElementById('statAttendance')) {
+        document.getElementById('statAttendance').textContent = academicData.asistencia + '%';
+        document.getElementById('statAttendance').setAttribute('data-target', academicData.asistencia);
+    }
+    if (document.getElementById('statSubjects')) {
+        document.getElementById('statSubjects').textContent = academicData.materias_activas;
+        document.getElementById('statSubjects').setAttribute('data-target', academicData.materias_activas);
+    }
     
     // Animar contadores
-    animateCounter('statSessions', stats.sessions);
-    animateCounter('statTasks', stats.tasks);
-    animateCounter('statMessages', stats.messages);
+    animateCounter('statAverage', academicData.promedio_general);
+    animateCounter('statAttendance', academicData.asistencia);
+    animateCounter('statSubjects', academicData.materias_activas);
+    
+    // Actualizar última actualización
+    if (document.getElementById('lastUpdate')) {
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    }
 }
 
 function animateCounter(elementId, targetValue) {
     const element = document.getElementById(elementId);
     if (!element) return;
-    
-    element.setAttribute('data-target', targetValue);
     
     let current = 0;
     const duration = 2000;
@@ -78,38 +165,177 @@ function animateCounter(elementId, targetValue) {
     const timer = setInterval(() => {
         current += step;
         if (current >= targetValue) {
-            element.textContent = targetValue;
+            element.textContent = elementId === 'statAverage' ? targetValue.toFixed(1) : Math.round(targetValue);
             clearInterval(timer);
         } else {
-            element.textContent = Math.floor(current);
+            element.textContent = elementId === 'statAverage' ? current.toFixed(1) : Math.floor(current);
         }
     }, 16);
 }
 
-function loadRecentActivity() {
-    // Simular actividad reciente (en una app real esto vendría del backend)
-    const activities = [
-        'Inicio de sesión exitoso',
-        'Perfil actualizado',
-        'Nueva tarea creada',
-        'Reporte generado',
-        'Configuración modificada'
-    ];
+async function loadActivities() {
+    try {
+        // Simular carga de actividades (en una app real vendría del backend)
+        const activities = [
+            {
+                type: 'exam',
+                title: 'Examen de Matemáticas',
+                description: 'Unidad 3 - Álgebra',
+                time: 'Hoy - 10:00 AM',
+                urgent: true
+            },
+            {
+                type: 'assignment',
+                title: 'Entrega de Historia',
+                description: 'Revolución Industrial',
+                time: 'Mañana - 2:00 PM',
+                important: true
+            },
+            {
+                type: 'event',
+                title: 'Olimpíadas de Ciencias',
+                description: 'Fase regional',
+                time: '15/09 - 9:00 AM'
+            }
+        ];
+        
+        updateActivitiesList(activities);
+    } catch (error) {
+        console.error('Error loading activities:', error);
+    }
+}
+
+function updateActivitiesList(activities) {
+    const activitiesList = document.getElementById('upcomingActivities');
+    if (!activitiesList) return;
     
-    const activityList = document.getElementById('activityList');
-    if (!activityList) return;
-    
-    activityList.innerHTML = '';
+    activitiesList.innerHTML = '';
     
     activities.forEach(activity => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span class="activity-icon">🔹</span>
-            <span class="activity-text">${activity}</span>
-            <span class="activity-time">Hace ${Math.floor(Math.random() * 60)} min</span>
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        
+        if (activity.urgent) activityItem.classList.add('urgent');
+        if (activity.important) activityItem.classList.add('important');
+        
+        let icon = '📚';
+        if (activity.type === 'assignment') icon = '📝';
+        if (activity.type === 'event') icon = '🎯';
+        
+        activityItem.innerHTML = `
+            <div class="activity-icon">${icon}</div>
+            <div class="activity-content">
+                <h4>${activity.title}</h4>
+                <p>${activity.description}</p>
+                <span class="activity-time">${activity.time}</span>
+            </div>
         `;
-        activityList.appendChild(li);
+        
+        activitiesList.appendChild(activityItem);
     });
+}
+
+async function loadNews() {
+    try {
+        // Simular carga de noticias (en una app real vendría del backend)
+        const news = [
+            {
+                date: '25/08/2024',
+                title: 'Inscripciones 2024 Abiertas',
+                content: 'Las inscripciones para el próximo ciclo lectivo estarán abiertas desde el 1 de octubre.'
+            },
+            {
+                date: '20/08/2024',
+                title: 'Torneo Deportivo Intercolegial',
+                content: 'Este sábado se realizará el torneo de fútbol en las instalaciones del colegio.'
+            }
+        ];
+        
+        updateNewsList(news);
+    } catch (error) {
+        console.error('Error loading news:', error);
+    }
+}
+
+function updateNewsList(news) {
+    const newsContainer = document.querySelector('.news-list');
+    if (!newsContainer) return;
+    
+    newsContainer.innerHTML = '';
+    
+    news.forEach(newsItem => {
+        const newsElement = document.createElement('div');
+        newsElement.className = 'news-item';
+        newsElement.innerHTML = `
+            <div class="news-date">${newsItem.date}</div>
+            <h4>${newsItem.title}</h4>
+            <p>${newsItem.content}</p>
+        `;
+        
+        newsContainer.appendChild(newsElement);
+    });
+}
+
+const API_URL = 'http://localhost:5000';
+
+async function loadMessages() {
+    const res = await fetch(`${API_URL}/api/student-messages`);
+    const data = await res.json();
+    const container = document.getElementById('student-messages');
+    if (data.messages && data.messages.length > 0) {
+        container.innerHTML = data.messages.map(msg => 
+            `<div class="notification">
+                <div><strong>${new Date(msg.fecha).toLocaleString()}</strong></div>
+                <div>${msg.texto}</div>
+            </div>`
+        ).join('');
+    } else {
+        container.textContent = "No hay mensajes.";
+    }
+}
+loadMessages();
+
+function startRealTimeClock() {
+    function updateClock() {
+        const now = new Date();
+        const timeElement = document.getElementById('currentTime');
+        const dateElement = document.getElementById('currentDate');
+        
+        if (timeElement && dateElement) {
+            const timeString = now.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const dateString = now.toLocaleDateString('es-ES', options);
+            
+            timeElement.textContent = timeString;
+            dateElement.textContent = dateString;
+        }
+    }
+    
+    updateClock();
+    setInterval(updateClock, 1000);
+}
+
+function startAutoUpdates() {
+    // Actualizar información cada 5 minutos
+    setInterval(() => {
+        loadUserProfile();
+        loadAcademicInfo();
+    }, 300000);
+    
+    // Actualizar actividades cada hora
+    setInterval(() => {
+        loadActivities();
+    }, 3600000);
 }
 
 function setupDashboardEvents() {
@@ -124,87 +350,28 @@ function setupDashboardEvents() {
         });
     }
     
-    // Efectos hover en botones de acción
+    // Configurar botones de acciones
     const actionButtons = document.querySelectorAll('.action-btn');
     actionButtons.forEach(button => {
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 5px 15px rgba(0, 217, 255, 0.4)';
-        });
-        
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = 'none';
-        });
-        
-        // Agregar funcionalidad a los botones
         button.addEventListener('click', function() {
-            const buttonText = this.textContent.trim();
-            switch(buttonText) {
-                case 'Nuevo Proyecto':
-                    showNotification('Función de nuevo proyecto en desarrollo', 'info');
-                    break;
-                case 'Ver Reportes':
-                    showNotification('Función de reportes en desarrollo', 'info');
-                    break;
-                case 'Configuración':
-                    showNotification('Función de configuración en desarrollo', 'info');
-                    break;
-            }
-        });
-    });
-    
-    // Efectos de hover en las tarjetas
-    const cards = document.querySelectorAll('.glass-card');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = 'none';
+            const action = this.querySelector('span').textContent;
+            showNotification(`Acción: ${action}`, 'info');
         });
     });
 }
 
-function startAutoUpdates() {
-    // Actualizar estadísticas cada 30 segundos
-    setInterval(() => {
-        loadStatistics();
-    }, 30000);
-    
-    // Actualizar actividad cada minuto
-    setInterval(() => {
-        loadRecentActivity();
-    }, 60000);
-    
-    // Verificar autenticación periódicamente
-    setInterval(() => {
-        if (!auth.isAuthenticated()) {
-            showNotification('Sesión expirada. Redirigiendo al login...', 'error');
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
-        }
-    }, 300000); // Cada 5 minutos
-}
-
-// Funciones utilitarias para el dashboard
+// Función para mostrar notificaciones
 function showNotification(message, type = 'info') {
-    // Crear elemento de notificación
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
         <div class="notification-content">
             <span class="notification-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
             <span class="notification-message">${message}</span>
-            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            <button class="notification-close">×</button>
         </div>
     `;
     
-    // Aplicar estilos
     Object.assign(notification.style, {
         position: 'fixed',
         top: '20px',
@@ -224,6 +391,11 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
+    // Configurar botón de cerrar
+    notification.querySelector('.notification-close').addEventListener('click', function() {
+        notification.remove();
+    });
+    
     // Auto-eliminar después de 5 segundos
     setTimeout(() => {
         if (notification.parentElement) {
@@ -232,64 +404,36 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Función para actualizar el reloj en tiempo real (opcional)
-function startClock() {
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        const dateString = now.toLocaleDateString();
-        
-        const clockElement = document.getElementById('dashboardClock');
-        if (clockElement) {
-            clockElement.innerHTML = `
-                <div>${dateString}</div>
-                <div>${timeString}</div>
-            `;
-        }
-    }
+// Añadir esta función para manejar errores de conexión
+function setupConnectionMonitoring() {
+    let isOnline = true;
     
-    updateClock();
-    setInterval(updateClock, 1000);
-}
-
-// Función para cargar datos en tiempo real desde el backend
-async function loadRealTimeData() {
-    try {
-        const response = await fetch(`${auth.apiBase}/user`, {
-            headers: auth.getAuthHeaders()
-        });
-        
-        if (response.ok) {
-            const userData = await response.json();
+    // Verificar conexión periódicamente
+    setInterval(async () => {
+        try {
+            const response = await fetch(`${auth.apiBase}/health`, {
+                method: 'GET',
+                headers: auth.getAuthHeaders()
+            });
             
-            // Actualizar información del usuario en tiempo real
-            if (userData.user && document.getElementById('userProfile')) {
-                document.getElementById('userProfile').innerHTML = `
-                    <strong>Usuario:</strong> ${userData.user.username}<br>
-                    <strong>Email:</strong> ${userData.user.email}<br>
-                    <strong>Miembro desde:</strong> ${new Date(userData.user.created_at).toLocaleDateString()}
-                `;
+            if (!response.ok && isOnline) {
+                isOnline = false;
+                showNotification('Conexión perdida con el servidor', 'error');
+            } else if (response.ok && !isOnline) {
+                isOnline = true;
+                showNotification('Conexión restaurada', 'success');
+                // Recargar datos cuando se restablece la conexión
+                loadUserProfile();
+                loadAcademicInfo();
+            }
+        } catch (error) {
+            if (isOnline) {
+                isOnline = false;
+                showNotification('Conexión perdida con el servidor', 'error');
             }
         }
-    } catch (error) {
-        console.error('Error loading real-time data:', error);
-    }
+    }, 30000); // Verificar cada 30 segundos
 }
-
-// Iniciar funcionalidades adicionales cuando esté disponible
-document.addEventListener('DOMContentLoaded', function() {
-    // Iniciar reloj si existe el elemento
-    if (document.getElementById('dashboardClock')) {
-        startClock();
-    }
-    
-    // Cargar datos en tiempo real cada minuto
-    setInterval(loadRealTimeData, 60000);
-});
-
-// Exportar funciones para uso global
-window.showNotification = showNotification;
-window.auth = auth;
 
 // Manejar errores globales
 window.addEventListener('error', function(e) {
@@ -297,8 +441,11 @@ window.addEventListener('error', function(e) {
     showNotification('Ocurrió un error inesperado', 'error');
 });
 
-// Manejar promesas no capturadas
 window.addEventListener('unhandledrejection', function(e) {
     console.error('Promesa no capturada:', e.reason);
     showNotification('Error en la aplicación', 'error');
 });
+
+// Exportar funciones para uso global
+window.showNotification = showNotification;
+window.auth = auth;

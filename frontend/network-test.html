@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Red - Colegio San Isidro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #050510);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #00d9ff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .success {
+            border-left: 4px solid #2ed573;
+        }
+        .error {
+            border-left: 4px solid #ff4757;
+        }
+        .warning {
+            border-left: 4px solid #ffa502;
+        }
+        button {
+            background: linear-gradient(90deg, #00d9ff, #ff00e6);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diagnóstico de Red</h1>
+        <p>Esta herramienta ayuda a diagnosticar problemas de conexión con el servidor.</p>
+        
+        <div class="test-section">
+            <h2>Información del Cliente</h2>
+            <div id="clientInfo"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Pruebas de Conexión</h2>
+            <button onclick="testConnection()">Probar Conexión al Servidor</button>
+            <button onclick="testAllEndpoints()">Probar Todos los Endpoints</button>
+            <div id="connectionResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>URLs Alternativas</h2>
+            <button onclick="testAlternativeURLs()">Probar URLs Alternativas</button>
+            <div id="alternativeResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Solucionar Problemas</h2>
+            <p>Si tienes problemas de conexión:</p>
+            <ol>
+                <li>Asegúrate de que el servidor esté ejecutándose</li>
+                <li>Verifica que el firewall permita conexiones al puerto 5000</li>
+                <li>Si estás en otra máquina, usa la IP correcta del servidor</li>
+                <li>Prueba con las URLs alternativas</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Mostrar información del cliente
+        document.getElementById('clientInfo').innerHTML = `
+            <p><strong>Hostname:</strong> ${window.location.hostname}</p>
+            <p><strong>URL Actual:</strong> ${window.location.href}</p>
+            <p><strong>API Base Configurada:</strong> ${appConfig.getApiBase()}</p>
+        `;
+        
+        async function testConnection() {
+            const results = document.getElementById('connectionResults');
+            results.innerHTML = '<p>Probando conexión...</p>';
+            
+            try {
+                const response = await fetch(`${appConfig.getApiBase()}/health`);
+                const data = await response.json();
+                
+                results.innerHTML = `
+                    <div class="test-result success">
+                        <p>✅ <strong>Conexión exitosa</strong></p>
+                        <p>Servidor: ${appConfig.getApiBase()}</p>
+                        <p>Estado: ${data.status}</p>
+                        <p>Mensaje: ${data.message}</p>
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="test-result error">
+                        <p>❌ <strong>Error de conexión</strong></p>
+                        <p>Servidor: ${appConfig.getApiBase()}</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testAllEndpoints() {
+            const results = document.getElementById('connectionResults');
+            results.innerHTML = '<p>Probando todos los endpoints...</p>';
+            
+            const endpoints = [
+                '/health',
+                '/network-info',
+                '/api/login',
+                '/api/register'
+            ];
+            
+            let html = '<div class="test-results">';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${appConfig.getApiBase()}${endpoint}`);
+                    const status = response.status;
+                    
+                    html += `
+                        <div class="test-result ${status === 200 ? 'success' : 'warning'}">
+                            <p>${status === 200 ? '✅' : '⚠️'} <strong>${endpoint}</strong></p>
+                            <p>Status: ${status}</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    html += `
+                        <div class="test-result error">
+                            <p>❌ <strong>${endpoint}</strong></p>
+                            <p>Error: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            html += '</div>';
+            results.innerHTML = html;
+        }
+        
+        async function testAlternativeURLs() {
+            const results = document.getElementById('alternativeResults');
+            results.innerHTML = '<p>Probando URLs alternativas...</p>';
+            
+            const alternatives = [
+                appConfig.getApiBase(),
+                `http://${window.location.hostname}:5000/api`,
+                `http://localhost:5000/api`,
+                `http://127.0.0.1:5000/api`
+            ];
+            
+            // Add possible server IPs if we can guess them
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                alternatives.push(`http://${window.location.hostname}:5000/api`);
+            }
+            
+            let html = '<div class="test-results">';
+            
+            for (const url of alternatives) {
+                try {
+                    const response = await fetch(`${url}/health`);
+                    const status = response.status;
+                    
+                    html += `
+                        <div class="test-result ${status === 200 ? 'success' : 'warning'}">
+                            <p>${status === 200 ? '✅' : '⚠️'} <strong>${url}</strong></p>
+                            <p>Status: ${status}</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    html += `
+                        <div class="test-result error">
+                            <p>❌ <strong>${url}</strong></p>
+                            <p>Error: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            html += '</div>';
+            results.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
