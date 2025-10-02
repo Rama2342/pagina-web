@@ -1,4 +1,6 @@
-Integrantes: Front-end: Martina Sanches
+Integrantes: 
+            
+            Front-end: Martina Sanches
             
             Back-end:Ramiro Bazan
             
