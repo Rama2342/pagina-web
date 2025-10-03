@@ -73,24 +73,11 @@ def init_database():
         cursor.execute('CREATE INDEX idx_students_matricula ON students (matricula)')
 
         logger.info("Creando usuario admin...")
-        admin_password_hash = generate_password_hash('admin123') # Contraseña por defecto para el admin
+        admin_password_hash = generate_password_hash('Profesores2025') # Contraseña por defecto para el admin
         cursor.execute(
             'INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, ?)',
             ('admin', 'admin@sanisidro.edu', admin_password_hash, 1)
         )
-
-        logger.info("Creando usuarios de prueba...")
-        test_users = [
-            ('juanperez', 'juan@sanisidro.edu', generate_password_hash('password123'), 0),
-            ('mariagomez', 'maria@sanisidro.edu', generate_password_hash('password123'), 0),
-            ('profesor1', 'profesor@sanisidro.edu', generate_password_hash('password123'), 0)
-        ]
-
-        for username, email, pwd_hash, is_admin in test_users:
-            cursor.execute(
-                'INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, ?)',
-                (username, email, pwd_hash, is_admin)
-            )
 
         conn.commit()
 

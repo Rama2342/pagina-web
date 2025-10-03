@@ -85,7 +85,7 @@ def create_app():
 
     cors.init_app(app, resources={
         r"/*": {
-            "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"],  # Agregué puerto del frontend
+            "origins": "*",
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type", "Authorization"],

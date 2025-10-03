@@ -197,7 +197,7 @@ def auth_register():
             return jsonify({'success': False, 'error': 'Este estudiante ya tiene una cuenta de usuario asociada.'}), 403
         # --- Fin Lógica ---
 
-        password_hash = generate_password_hash(password)
+        password_hash = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
         result = db.session.execute(
             text('''
             INSERT INTO users (username, email, password_hash, is_admin, student_id)
@@ -321,7 +321,7 @@ def auth_health():
 
 # Funciones auxiliares (mantienen la misma lógica, solo se añade logging si es necesario)
 def guardar_usuario(username, password):
-    hashed_password = generate_password_hash(password)
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
     logger.info(f"Guardando usuario {username} con hash de contraseña.")
     db.session.execute(
         text('INSERT INTO users (username, password_hash) VALUES (:username, :password_hash)'),
